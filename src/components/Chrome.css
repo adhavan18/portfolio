@@ -1,0 +1,162 @@
+/* ---------- scroll progress ---------- */
+.progress {
+  position: fixed; left: 0; right: 0; top: 0; z-index: 300;
+  height: 2px; background: var(--accent);
+  transform-origin: 0 50%;
+  box-shadow: 0 0 10px var(--accent);
+  pointer-events: none;
+}
+
+/* ---------- glass, shared by the chrome pieces ---------- */
+.filetab, .kbd-hint, .dock, .cmd {
+  background: color-mix(in srgb, var(--panel) 74%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line-2) 80%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+}
+
+/* ---------- top-left file tab ---------- */
+.filetab {
+  position: fixed; left: 14px; top: 12px; z-index: 200;
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 30px; padding: 0 10px 0 7px;
+  border-radius: 8px;
+  font: 500 12px/1 var(--mono); color: var(--muted);
+  box-shadow: 0 8px 24px -14px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+.filetab-logo { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 5px; background: var(--panel-2); color: var(--fg); }
+.filetab-name { color: var(--fg); letter-spacing: -.01em; }
+.filetab-live { display: inline-flex; align-items: center; gap: 5px; padding-left: 8px; border-left: 1px solid var(--line-2); color: var(--accent); font-size: 11px; }
+.filetab-live i { position: relative; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.filetab-live i::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; border: 1px solid var(--accent); opacity: 0; animation: chrome-ping 2.4s var(--ease) infinite; }
+@keyframes chrome-ping { 0% { transform: scale(.6); opacity: .8; } 70%, 100% { transform: scale(1.6); opacity: 0; } }
+
+/* ---------- top-right shortcut hint ---------- */
+.kbd-hint {
+  position: fixed; right: 14px; top: 12px; z-index: 200;
+  display: inline-flex; align-items: center; gap: 3px;
+  height: 30px; padding: 0 6px; border-radius: 8px;
+  cursor: pointer; color: var(--muted);
+  transition: color .2s, border-color .2s, transform .25s var(--spring);
+}
+.kbd-hint:hover { color: var(--fg); border-color: var(--faint); }
+.kbd-hint:active { transform: scale(.94); }
+.kbd-hint kbd, .cmd kbd {
+  display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px;
+  border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 5px;
+  background: var(--panel-2); font: 500 11px/1 var(--mono); color: inherit;
+}
+
+/* ---------- bottom toolbar dock ---------- */
+.dock {
+  position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 200;
+  display: flex; align-items: center; gap: 4px;
+  padding: 5px; border-radius: 16px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 24px 60px -18px rgba(0, 0, 0, 0.9),
+    0 6px 16px -8px rgba(0, 0, 0, 0.6);
+  max-width: calc(100vw - 24px);
+}
+.dock-list { display: flex; align-items: center; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.dock-btn {
+  position: relative; isolation: isolate;
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 38px; padding: 0 11px; border: 0; border-radius: 11px;
+  background: transparent; color: var(--muted); text-decoration: none; cursor: pointer;
+  font: 500 13px/1 var(--sans); white-space: nowrap;
+  transition: color .2s, transform .25s var(--spring);
+  -webkit-tap-highlight-color: transparent;
+}
+.dock-btn::before { content: ""; position: absolute; inset: 0; z-index: -2; border-radius: inherit; background: var(--panel-2); opacity: 0; transition: opacity .15s; }
+.dock-btn:hover { color: var(--fg); }
+.dock-btn:hover::before { opacity: 1; }
+.dock-btn:active { transform: scale(.93); }
+.dock-btn:focus-visible { outline-offset: 1px; border-radius: 11px; }
+.dock-btn.is-on { color: var(--accent-ink); }
+.dock-hl { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--accent); box-shadow: 0 6px 20px -8px var(--accent); }
+.dock-ico { display: grid; place-items: center; width: 18px; height: 18px; }
+.dock-sep { width: 1px; height: 22px; margin: 0 3px; background: var(--line-2); }
+.dock-k { gap: 6px; padding: 0 10px; }
+.dock-k-text { font-size: 12px; color: var(--fg); padding: 3px 6px; border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 6px; background: var(--panel-2); }
+.dock-k-search { display: none; }
+
+@media (max-width: 760px) {
+  .dock-label {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .dock-btn { padding: 0; width: 40px; justify-content: center; }
+  .dock-k-text { display: none; }
+  .dock-k-search { display: grid; }
+  .kbd-hint { display: none; }
+}
+@media (max-width: 360px) {
+  .dock-btn { width: 36px; }
+  .dock-sep { margin: 0 1px; }
+}
+@media (hover: none) {
+  .kbd-hint { display: none; }
+}
+@media (max-width: 480px) {
+  .filetab { left: 10px; top: 10px; height: 26px; font-size: 11px; }
+}
+
+/* ---------- toast ---------- */
+.chrome-toast {
+  position: fixed; left: 50%; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); z-index: 260;
+  padding: 9px 14px; border-radius: 999px;
+  background: var(--accent); color: var(--accent-ink);
+  font-size: 13px; font-weight: 500; line-height: 1; white-space: nowrap;
+  box-shadow: 0 12px 30px -10px var(--accent);
+  pointer-events: none;
+}
+.chrome-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ---------- command palette ---------- */
+.cmd-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  display: flex; justify-content: center; align-items: flex-start;
+  padding: min(16vh, 140px) 16px 16px;
+  background: rgba(5, 5, 6, 0.55);
+}
+.cmd {
+  width: 100%; max-width: 580px;
+  border-radius: 16px; overflow: hidden;
+  background: color-mix(in srgb, var(--panel) 90%, transparent);
+  box-shadow: 0 1px 0 rgba(255,255,255,.06) inset, 0 40px 120px -30px rgba(0, 0, 0, 0.95);
+  transform-origin: 50% 0;
+}
+.cmd-search { display: flex; align-items: center; gap: 10px; padding: 0 14px; height: 56px; border-bottom: 1px solid var(--line); color: var(--muted); }
+.cmd-input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; color: var(--fg); font: 400 16px/1 var(--sans); }
+.cmd-input::placeholder { color: var(--faint); }
+.cmd-input:focus-visible { outline: 0; }
+.cmd-esc { color: var(--faint); }
+
+.cmd-list { list-style: none; margin: 0; padding: 6px; max-height: min(52vh, 380px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.cmd-group { padding: 12px 10px 6px; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
+.cmd-list > li:first-child .cmd-group { padding-top: 6px; }
+.cmd-item {
+  position: relative; isolation: isolate;
+  display: flex; align-items: center; gap: 12px;
+  height: 42px; padding: 0 10px; border-radius: 10px;
+  color: var(--muted); cursor: pointer; user-select: none;
+  font-size: 14.5px;
+}
+.cmd-item.is-active { color: var(--fg); }
+.cmd-hl { position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--panel-2); box-shadow: inset 2px 0 0 var(--accent); }
+.cmd-ico { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; border: 1px solid var(--line-2); background: var(--bg); color: var(--muted); flex: 0 0 auto; }
+.cmd-ico svg { width: 15px; height: 15px; }
+.cmd-item.is-active .cmd-ico { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--line-2)); }
+.cmd-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmd-label mark { background: none; color: var(--accent); }
+.cmd-hint { font-size: 11.5px; color: var(--faint); }
+.cmd-empty { padding: 22px 12px; color: var(--faint); font-size: 14px; text-align: center; }
+.cmd-foot { display: flex; gap: 16px; padding: 10px 14px; border-top: 1px solid var(--line); font-size: 11px; color: var(--faint); }
+.cmd-foot span { display: inline-flex; align-items: center; gap: 4px; }
+.cmd-foot kbd { min-width: 18px; height: 18px; font-size: 10px; }
+@media (max-width: 520px) {
+  .cmd-overlay { padding-top: 12vh; }
+  .cmd-foot { display: none; }
+}

@@ -1,0 +1,183 @@
+/* Process as a node graph: draggable nodes, bezier wires, a travelling data packet. */
+
+.flow-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: clamp(40px, 6vw, 64px);
+  margin-bottom: 10px;
+}
+.flow-bar__label { margin: 0; }
+.flow-bar__tools { display: inline-flex; align-items: center; gap: 14px; }
+.flow-hint {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 500 11.5px/1 var(--mono); color: var(--faint); letter-spacing: .02em;
+}
+.flow-hint svg { color: var(--select); }
+.flow-reset {
+  border: 1px solid var(--line-2); background: var(--panel); color: var(--muted);
+  font: 500 11.5px/1 var(--mono); padding: 6px 10px; border-radius: 999px; cursor: pointer;
+  transition: color .2s, border-color .2s, opacity .2s, transform .25s var(--spring);
+}
+.flow-reset:hover:not(:disabled) { color: var(--fg); border-color: var(--fg); }
+.flow-reset:active:not(:disabled) { transform: scale(.94); }
+.flow-reset:disabled { opacity: .35; cursor: default; }
+
+/* the canvas */
+.flow-board {
+  --nw: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 52px;
+  padding: 28px 18px;
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(74, 240, 143, .045), transparent 60%),
+    rgba(14, 14, 16, .55);
+}
+
+.flow-wires {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  overflow: visible; pointer-events: none; z-index: 1;
+}
+.flow-wire {
+  fill: none;
+  stroke: var(--line-2);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1s var(--ease);
+  transition-delay: calc(var(--k) * 160ms + 240ms);
+}
+.is-drawn .flow-wire { stroke-dashoffset: 0; stroke: #3d3d47; }
+.flow-wire-glow {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0;
+  filter: drop-shadow(0 0 6px rgba(74, 240, 143, .55));
+  transition: opacity .45s var(--ease);
+}
+.flow-wire-glow.is-lit { opacity: .55; }
+
+.flow-packet { transition: opacity .25s var(--ease); }
+.flow-packet__halo { fill: var(--accent); opacity: .18; }
+.flow-packet__core { fill: var(--accent); filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px rgba(74, 240, 143, .6)); }
+
+/* nodes */
+.flow-node {
+  position: relative;
+  width: var(--nw);
+  padding: 0 0 12px;
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .04) inset, 0 18px 40px -24px rgba(0, 0, 0, .9);
+  transition: border-color .35s var(--ease), box-shadow .35s var(--ease);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.flow-node.is-hot {
+  border-color: rgba(74, 240, 143, .7);
+  box-shadow: 0 0 0 3px var(--accent-soft), 0 18px 50px -20px rgba(74, 240, 143, .35);
+}
+
+.flow-node__head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px 10px;
+  border-bottom: 1px solid var(--line);
+  border-radius: 12px 12px 0 0;
+  background: rgba(255, 255, 255, .02);
+}
+.flow-node__num {
+  flex: none;
+  display: grid; place-items: center;
+  min-width: 26px; height: 20px; padding: 0 5px;
+  border-radius: 5px;
+  font: 600 10.5px/1 var(--mono);
+  color: var(--accent);
+  background: var(--accent-soft);
+  transition: background-color .3s, color .3s;
+}
+.flow-node.is-hot .flow-node__num { background: var(--accent); color: var(--accent-ink); }
+.flow-node__title {
+  margin: 0;
+  font: 600 15px/1.25 var(--sans);
+  letter-spacing: -.015em;
+}
+.flow-node__text {
+  margin: 0;
+  padding: 11px 14px 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.flow-node__io {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 6px;
+  margin: 12px 14px 0;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line-2);
+  font: 500 11.5px/1.4 var(--mono);
+  color: var(--fg);
+}
+.flow-node__io-k {
+  font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--faint); margin-right: 2px;
+}
+.flow-node__arrow { color: var(--faint); }
+.flow-node__out { color: var(--accent); }
+
+/* ports */
+.flow-port {
+  position: absolute;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--board);
+  border: 2px solid #4a4a55;
+  z-index: 2;
+  transition: background-color .3s, border-color .3s, box-shadow .3s;
+}
+.flow-port--in { left: 50%; top: -7px; transform: translateX(-50%); }
+.flow-port--out { left: 50%; bottom: -7px; transform: translateX(-50%); border-color: var(--accent); }
+.flow-node.is-hot .flow-port { border-color: var(--accent); background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+.flow-node:first-of-type .flow-port--in,
+.flow-node:last-of-type .flow-port--out { opacity: .35; }
+
+/* canvas layouts: nodes sit on the board and can be dragged */
+@media (min-width: 760px) {
+  .flow-board {
+    --nw: 184px;
+    display: block;
+    height: 520px;
+    padding: 0;
+    margin-inline: 0;
+  }
+  .flow-node {
+    position: absolute;
+    left: calc(18px + (100% - 36px - var(--nw)) * var(--i) / var(--last));
+    top: calc(var(--top-mid) + 22px);
+    cursor: grab;
+    touch-action: none;
+  }
+  .flow-node:active { cursor: grabbing; }
+  .flow-port--in { left: -7px; top: 15px; transform: none; }
+  .flow-port--out { left: auto; right: -7px; bottom: auto; top: 15px; transform: none; }
+}
+
+@media (min-width: 1000px) {
+  .flow-board { --nw: 188px; height: 470px; }
+  .flow-node { top: calc(var(--top-wide) + 18px); }
+}
+
+@media (min-width: 1120px) {
+  .flow-board { --nw: 192px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-wire { stroke-dashoffset: 0; transition: none; }
+}

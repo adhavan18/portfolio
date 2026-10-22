@@ -1,0 +1,150 @@
+/* Ideas: sticky notes on a FigJam-like board. */
+
+.ideas-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-top: clamp(40px, 6vw, 64px);
+  margin-bottom: 10px;
+}
+.ideas-bar__label { margin: 0; }
+.ideas-bar__tools { display: inline-flex; align-items: center; gap: 14px; }
+.ideas-hint { font: 500 11.5px/1 var(--mono); color: var(--faint); }
+.ideas-reset {
+  border: 1px solid var(--line-2); background: var(--panel); color: var(--muted);
+  font: 500 11.5px/1 var(--mono); padding: 6px 10px; border-radius: 999px; cursor: pointer;
+  transition: color .2s, border-color .2s, opacity .2s, transform .25s var(--spring);
+}
+.ideas-reset:hover:not(:disabled) { color: var(--fg); border-color: var(--fg); }
+.ideas-reset:active:not(:disabled) { transform: scale(.94); }
+.ideas-reset:disabled { opacity: .35; cursor: default; }
+
+.ideas-board {
+  --nw: 100%;
+  position: relative;
+  display: grid;
+  gap: 22px;
+  padding: 26px 16px;
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, .09) 1px, transparent 0) 0 0 / 20px 20px,
+    rgba(20, 20, 23, .6);
+}
+
+/* a sticky note */
+.note {
+  --ink: #18181b;
+  position: relative;
+  width: var(--nw);
+  padding: 26px 20px 18px;
+  border-radius: 3px 3px 14px 3px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .28), rgba(255, 255, 255, 0) 30%),
+    var(--note, #fde68a);
+  color: var(--ink);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .4) inset,
+    0 18px 30px -18px rgba(0, 0, 0, .8),
+    0 3px 8px -3px rgba(0, 0, 0, .5);
+  user-select: none;
+  -webkit-user-select: none;
+}
+/* folded corner */
+.note::after {
+  content: ""; position: absolute; right: 0; bottom: 0;
+  width: 22px; height: 22px;
+  background: linear-gradient(135deg, rgba(0, 0, 0, .12) 0 50%, transparent 50%);
+  border-radius: 0 0 14px 0;
+  pointer-events: none;
+}
+.note__tape {
+  position: absolute; left: 50%; top: -11px;
+  width: 84px; height: 24px;
+  transform: translateX(-50%) rotate(-3deg);
+  background: rgba(244, 244, 245, .32);
+  border-left: 1px dashed rgba(255, 255, 255, .35);
+  border-right: 1px dashed rgba(255, 255, 255, .35);
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
+}
+.note:nth-child(even) .note__tape { transform: translateX(-50%) rotate(4deg); left: 46%; }
+
+.note__who {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .085);
+  font: 600 10.5px/1.2 var(--mono);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: rgba(24, 24, 27, .78);
+}
+.note__title {
+  margin: 12px 0 0;
+  font: 600 19px/1.2 var(--sans);
+  letter-spacing: -.025em;
+  text-wrap: balance;
+}
+.note__text {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(24, 24, 27, .82);
+}
+.note__how {
+  margin: 14px 0 0;
+  padding-top: 11px;
+  border-top: 1px dashed rgba(0, 0, 0, .25);
+  font: 500 11.5px/1.45 var(--mono);
+  color: rgba(24, 24, 27, .85);
+}
+
+/* canvas mode: notes float on the board and can be thrown around */
+@media (min-width: 640px) {
+  .ideas-board {
+    --nw: 272px;
+    display: block;
+    height: 860px;
+    padding: 0;
+  }
+  .note {
+    position: absolute;
+    left: calc(20px + (100% - 40px - var(--nw)) * var(--x2));
+    top: calc(var(--y2) + 26px);
+    cursor: grab;
+    touch-action: none;
+  }
+  .note:active { cursor: grabbing; }
+}
+
+@media (min-width: 1040px) {
+  .ideas-board { --nw: 236px; height: 540px; }
+  .note {
+    left: calc(22px + (100% - 44px - var(--nw)) * var(--x4));
+    top: calc(var(--y4) + 30px);
+  }
+  .note__title { font-size: 18px; }
+}
+
+/* the rule under the board */
+.ideas-rule {
+  display: flex; align-items: flex-start; gap: 14px;
+  margin-top: 28px;
+  padding: 16px 18px;
+  border: 1px solid var(--line-2);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--r-sm);
+  background: var(--panel);
+}
+.ideas-rule__k {
+  flex: none;
+  margin-top: 4px;
+  padding: 4px 7px;
+  border-radius: 5px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font: 600 10.5px/1 var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.ideas-rule p { margin: 0; font-size: 15.5px; line-height: 1.55; color: var(--fg); max-width: 70ch; }

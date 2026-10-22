@@ -88,8 +88,9 @@ function scatter(n, W, H, seed) {
   const ch = cw + CAP_H;
   const cols = W >= 900 ? 5 : 4;
   const rows = Math.ceil(n / cols);
-  const spanX = Math.max(0, W - cw);
-  const spanY = Math.max(0, H - ch);
+  const PAD = 18; // keep rotated corners inside the table edge
+  const spanX = Math.max(0, W - cw - PAD * 2);
+  const spanY = Math.max(0, H - ch - PAD * 2);
   const slots = Array.from({ length: n }, (_, i) => i);
   for (let i = slots.length - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1));
@@ -103,8 +104,8 @@ function scatter(n, W, H, seed) {
     const jx = (rnd() * 2 - 1) * (spanX / cols) * 0.32;
     const jy = (rnd() * 2 - 1) * 46;
     return {
-      x: Math.round(Math.min(spanX, Math.max(0, bx + jx))),
-      y: Math.round(Math.min(spanY, Math.max(0, by + jy))),
+      x: PAD + Math.round(Math.min(spanX, Math.max(0, bx + jx))),
+      y: PAD + Math.round(Math.min(spanY, Math.max(0, by + jy))),
       r: Math.round((rnd() * 2 - 1) * 110) / 10,
     };
   });
@@ -296,7 +297,8 @@ function Lightbox({ photos, index, onClose, onStep, reduce }) {
 function PhotoTable({ photos, reduce, onOpen }) {
   const tableRef = useRef(null);
   const { w } = useSize(tableRef);
-  const inView = useInView(tableRef, { once: true, margin: "0px 0px -20% 0px" });
+  const inView = useInView(tableRef, { once: true, amount: 0.3 });
+  const [poked, setPoked] = useState(false); // shuffle or a grab also deals the deck
   const [seed, setSeed] = useState(7);
   const [order, setOrder] = useState(() => photos.map((_, i) => i));
   const [active, setActive] = useState(null);
@@ -305,23 +307,25 @@ function PhotoTable({ photos, reduce, onOpen }) {
   const H = TABLE_H;
   const cw = cardWidth(W);
   const ch = cw + CAP_H;
-  const dealt = inView || reduce;
+  const dealt = inView || poked || reduce;
   const targets = dealt ? scatter(photos.length, W, H, seed) : stacked(photos.length, W, H);
   const bounds = { ref: tableRef, w: W, h: H };
 
   const grab = useCallback((i) => {
+    setPoked(true);
     setActive(i);
     setOrder((o) => (o[o.length - 1] === i ? o : [...o.filter((k) => k !== i), i]));
   }, []);
 
   const shuffle = () => {
-    setSeed((s) => s + 1);
+    if (dealt) setSeed((s) => s + 1);
+    setPoked(true);
     setActive(null);
   };
 
   return (
-    <div className="table-wrap">
-      <div className="table-bar">
+    <div className="wins-table-wrap">
+      <div className="wins-table-bar">
         <p className="frame-label">Table · drag the photos around</p>
         <button type="button" className="btn shuffle" onClick={shuffle}>
           <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
@@ -331,7 +335,7 @@ function PhotoTable({ photos, reduce, onOpen }) {
         </button>
       </div>
       <div
-        className="table"
+        className="wins-table"
         ref={tableRef}
         style={{ height: H }}
         onPointerDown={(e) => {
@@ -356,7 +360,7 @@ function PhotoTable({ photos, reduce, onOpen }) {
               onOpen={onOpen}
             />
           ))}
-        <span className="table-hint mono" aria-hidden="true">
+        <span className="wins-table-hint mono" aria-hidden="true">
           {photos.length} photos · click one to open
         </span>
       </div>
@@ -369,9 +373,9 @@ function PhotoTable({ photos, reduce, onOpen }) {
 function PhotoStrip({ photos, onOpen }) {
   const rnd = mulberry32(11);
   return (
-    <div className="strip-wrap">
+    <div className="wins-strip-wrap">
       <p className="frame-label">Photos · swipe</p>
-      <ul className="strip" aria-label="Prize photos">
+      <ul className="wins-strip" aria-label="Prize photos">
         {photos.map((p, i) => (
           <li key={p.src} style={{ "--tilt": `${((rnd() * 2 - 1) * 3).toFixed(1)}deg` }}>
             <button type="button" className="polaroid polaroid-static" onClick={(e) => onOpen(i, e.currentTarget)} aria-label={`${p.cap}. Open photo.`}>
@@ -393,32 +397,32 @@ function Leaderboard({ wins }) {
   return (
     <div className="board-wrap">
       <p className="frame-label">Leaderboard</p>
-      <div className="lb-head mono" aria-hidden="true">
+      <div className="wl-head mono" aria-hidden="true">
         <span>#</span>
         <span>Event</span>
         <span>When</span>
         <span>Prize</span>
       </div>
-      <ol className="lb-list">
+      <ol className="wl-list">
         {wins.map((w, i) => {
           const inner = (
             <>
-              <span className="lb-rank mono" aria-hidden="true">
+              <span className="wl-rank mono" aria-hidden="true">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <span className="lb-main">
-                <h3 className="lb-title">
+              <span className="wl-main">
+                <h3 className="wl-title">
                   {w.title}
                   {w.href && (
-                    <span className="lb-ext" aria-hidden="true">
+                    <span className="wl-ext" aria-hidden="true">
                       {" "}↗
                     </span>
                   )}
                 </h3>
-                <span className="lb-sub">{w.sub}</span>
+                <span className="wl-sub">{w.sub}</span>
               </span>
-              <span className="lb-side mono">{w.side}</span>
-              <span className={`lb-prize mono${w.prize ? "" : " is-empty"}`}>
+              <span className="wl-side mono">{w.side}</span>
+              <span className={`wl-prize mono${w.prize ? "" : " is-empty"}`}>
                 {w.prize ? w.prize : <span aria-hidden="true">—</span>}
               </span>
             </>
@@ -426,17 +430,17 @@ function Leaderboard({ wins }) {
           return (
             <li key={w.title}>
               {w.href ? (
-                <a className="lb-row is-link" href={w.href} target="_blank" rel="noopener noreferrer">
+                <a className="wl-row is-link" href={w.href} target="_blank" rel="noopener noreferrer">
                   {inner}
                 </a>
               ) : (
-                <div className="lb-row">{inner}</div>
+                <div className="wl-row">{inner}</div>
               )}
             </li>
           );
         })}
       </ol>
-      <p className="lb-note">
+      <p className="wl-note">
         Prize amounts come from the cheques and certificates. The ₹1.1 lakh total counts only teams I was on.
       </p>
     </div>
@@ -501,7 +505,7 @@ function Contact({ person, reduce }) {
             <AnimatePresence>
               {copied && (
                 <motion.span
-                  className="toast mono"
+                  className="wins-toast mono"
                   initial={reduce ? { opacity: 0 } : { opacity: 0, y: 10, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={reduce ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.96 }}
@@ -536,7 +540,7 @@ function Contact({ person, reduce }) {
           <span className="contact-city mono">{person.city}</span>
         </div>
 
-        <footer className="foot mono">Tamil Adhavan S K · SRM Institute of Science and Technology · 2026</footer>
+        <footer className="wins-foot mono">Tamil Adhavan S K · SRM Institute of Science and Technology · 2026</footer>
       </div>
     </section>
   );

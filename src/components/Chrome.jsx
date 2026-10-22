@@ -430,7 +430,7 @@ export default function Chrome({ person = {}, cases = [] }) {
 
   return (
     <>
-      <motion.div className="progress" style={{ scaleX: reduce ? scrollYProgress : smooth }} aria-hidden="true" />
+      <motion.div className="chrome-progress" style={{ scaleX: reduce ? scrollYProgress : smooth }} aria-hidden="true" />
 
       <div className="filetab" aria-hidden="true">
         <span className="filetab-logo">

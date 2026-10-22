@@ -225,7 +225,7 @@
     radial-gradient(circle at 1px 1px, rgba(255,255,255,.06) 1px, transparent 0) 0 0 / 16px 16px,
     var(--board);
 }
-.mock-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.3fr); align-items: center; gap: 10px; }
+.mock-grid { display: grid; grid-template-columns: minmax(0, .9fr) auto minmax(0, 1.4fr); align-items: center; gap: 10px; }
 .mock-pane { min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
 .pane-h {
   display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
@@ -264,12 +264,12 @@
 .mock-arrow.flow .pulse { opacity: 1; animation: wk-dash .7s linear infinite; }
 
 .slide {
-  position: relative; aspect-ratio: 16 / 9; padding: 7% 8%; border-radius: 8px; overflow: hidden;
+  position: relative; aspect-ratio: 16 / 9; padding: 6% 7%; border-radius: 8px; isolation: isolate;
   background: var(--panel); border: 1px solid var(--line);
   transition: border-color .4s;
 }
 .slide::before {
-  content: ""; position: absolute; inset: 0; opacity: 0; transition: opacity .6s var(--ease);
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; opacity: 0; transition: opacity .6s var(--ease);
   background:
     radial-gradient(120% 100% at 100% 0%, color-mix(in oklab, var(--select) 75%, transparent), transparent 62%),
     radial-gradient(90% 90% at 0% 100%, color-mix(in oklab, var(--pink) 42%, transparent), transparent 62%),
@@ -277,7 +277,7 @@
 }
 .slide.built { border-color: color-mix(in oklab, var(--select) 50%, var(--line)); }
 .slide.built::before { opacity: 1; }
-.slide-skel { position: absolute; inset: 0; padding: 7% 8%; display: grid; align-content: start; gap: 9px; transition: opacity .3s; }
+.slide-skel { position: absolute; inset: 0; padding: 6% 7%; display: grid; align-content: start; gap: 9px; transition: opacity .3s; }
 .slide-skel i { display: block; height: 9px; border-radius: 4px; background: var(--line); }
 .slide-skel i:nth-child(1) { width: 62%; height: 16px; margin-bottom: 6px; }
 .slide-skel i:nth-child(2) { width: 54%; }

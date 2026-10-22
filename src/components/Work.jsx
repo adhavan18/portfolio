@@ -41,7 +41,16 @@ function imagesOf(c) {
 export default function Work({ cases = [] }) {
   const [box, setBox] = useState(null); // { ci, ii }
   const close = useCallback(() => setBox(null), []);
-  const setIndex = useCallback((ii) => setBox((b) => (b ? { ...b, ii } : b)), []);
+  // step is relative (+1 / -1) and applied to the latest state, so fast key repeats never skip or stall
+  const step = useCallback(
+    (d) =>
+      setBox((b) => {
+        if (!b) return b;
+        const n = imagesOf(cases[b.ci]).length;
+        return n > 1 ? { ...b, ii: (b.ii + d + n) % n } : b;
+      }),
+    [cases]
+  );
   const boxImages = box ? imagesOf(cases[box.ci]) : [];
 
   return (
@@ -86,7 +95,7 @@ export default function Work({ cases = [] }) {
             images={boxImages}
             index={box.ii}
             title={cases[box.ci]?.title}
-            onIndex={setIndex}
+            onStep={step}
             onClose={close}
           />
         )}
@@ -280,7 +289,8 @@ function Inspector({ c, index, innerRef }) {
   const results = c.results || [];
   const links = c.links || [];
   const item = {
-    hidden: reduce ? { opacity: 1 } : { opacity: 0, y: 14 },
+    // content stays visible even if the in-view trigger never fires; only the slide-in is animated
+    hidden: reduce ? { opacity: 1 } : { opacity: 1, y: 10 },
     show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } },
   };
 
@@ -542,7 +552,7 @@ const slide = {
   exit: ({ d, reduce }) => (reduce ? { opacity: 0 } : { opacity: 0, x: d * -70, scale: d ? 1 : 0.96 }),
 };
 
-function Lightbox({ images, index, title, onIndex, onClose }) {
+function Lightbox({ images, index, title, onStep, onClose }) {
   const reduce = useReducedMotion();
   const dialogRef = useRef(null);
   const closeRef = useRef(null);
@@ -555,9 +565,9 @@ function Lightbox({ images, index, title, onIndex, onClose }) {
     (step) => {
       if (count < 2) return;
       setD(step);
-      onIndex((i + step + count) % count);
+      onStep(step);
     },
-    [count, i, onIndex]
+    [count, onStep]
   );
 
   // focus in, scroll lock, focus back to the thumbnail on close

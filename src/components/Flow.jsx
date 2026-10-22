@@ -12,8 +12,7 @@ import {
 import "./Flow.css";
 
 // Resting positions (px from the top of the board) for the two canvas layouts.
-const TOP_WIDE = [24, 136, 44, 160, 30]; // >=1000px: one gently staggered row
-const TOP_MID = [8, 252, 8, 252, 8]; // 760-999px: zig-zag over two rows
+const TOP_WIDE = [28, 132, 52, 150, 36]; // >=1000px: one gently staggered row
 
 const SPRING = { type: "spring", stiffness: 260, damping: 26 };
 
@@ -68,7 +67,6 @@ function Node({ step, i, last, canvas, boardRef, onMove, onGrab, z, resetKey, sh
         "--i": i,
         "--last": last,
         "--top-wide": `${TOP_WIDE[i % TOP_WIDE.length]}px`,
-        "--top-mid": `${TOP_MID[i % TOP_MID.length]}px`,
       }}
       initial={reduce ? false : { opacity: 0, scale: 0.94 }}
       animate={shown || reduce ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.94 }}
@@ -133,7 +131,7 @@ export default function Flow({ steps = [] }) {
     const board = boardRef.current;
     if (!board) return;
     const br = board.getBoundingClientRect();
-    const vertical = !window.matchMedia("(min-width: 760px)").matches;
+    const vertical = !window.matchMedia("(min-width: 1000px)").matches;
     const c = (el) => {
       const r = el.getBoundingClientRect();
       return [r.left + r.width / 2 - br.left, r.top + r.height / 2 - br.top];
@@ -148,7 +146,8 @@ export default function Flow({ steps = [] }) {
         const h = Math.max(20, Math.abs(y2 - y1) * 0.5);
         d = `M${x1},${y1} C${x1},${y1 + h} ${x2},${y2 - h} ${x2},${y2}`;
       } else {
-        const h = Math.max(48, Math.abs(x2 - x1) * 0.5, Math.min(Math.abs(y2 - y1) * 0.45, 130));
+        const dx = x2 - x1;
+        const h = dx > 0 ? Math.max(28, dx * 0.55) : Math.max(60, Math.min(Math.abs(y2 - y1) * 0.45, 130));
         d = `M${x1},${y1} C${x1 + h},${y1} ${x2 - h},${y2} ${x2},${y2}`;
       }
       wire[k].setAttribute("d", d);

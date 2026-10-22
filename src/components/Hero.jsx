@@ -191,15 +191,15 @@ const CURSOR_COLORS = ["var(--pink)", "var(--warn)", "var(--select)", "var(--acc
 // Waypoints as fractions of the hero's width/height; each cursor keeps to its own corner of the board.
 const PATHS = [
   { pts: [[0.74, 0.1], [0.9, 0.3], [0.66, 0.22], [0.86, 0.06]], clicks: [1, 3] },
-  { pts: [[0.06, 0.6], [0.26, 0.76], [0.14, 0.66], [0.38, 0.62]], clicks: [2] },
+  { pts: [[0.04, 0.36], [0.09, 0.58], [0.03, 0.72], [0.08, 0.46]], clicks: [2] },
   { pts: [[0.58, 0.46], [0.7, 0.62], [0.5, 0.72], [0.62, 0.4]], clicks: [1, 3] },
   { pts: [[0.42, 0.06], [0.24, 0.04], [0.56, 0.16], [0.34, 0.12]], clicks: [2] },
   { pts: [[0.92, 0.58], [0.78, 0.8], [0.94, 0.74], [0.82, 0.48]], clicks: [1] },
 ];
-// on phones the content stacks, so keep the two cursors near the right edge and the top
+// on phones the content stacks, so keep the two cursors in the top band, clear of the right edge
 const MOBILE_PATHS = [
-  { pts: [[0.62, 0.05], [0.82, 0.12], [0.7, 0.03], [0.88, 0.08]], clicks: [1] },
-  { pts: [[0.66, 0.44], [0.84, 0.52], [0.74, 0.4], [0.86, 0.47]], clicks: [2] },
+  { pts: [[0.5, 0.03], [0.62, 0.07], [0.44, 0.05], [0.6, 0.02]], clicks: [1] },
+  { pts: [[0.3, 0.17], [0.55, 0.2], [0.4, 0.165], [0.6, 0.185]], clicks: [2] },
 ];
 
 function buildPath({ pts, clicks }, move, hold) {

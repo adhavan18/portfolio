@@ -97,13 +97,13 @@
 .fit-wire { position: relative; height: 24px; display: flex; align-items: center; }
 .fit-wire-line {
   flex: 1; height: 0;
-  border-top: 1.5px dashed var(--line-2);
+  border-top: 1.5px dashed var(--faint);
   transform-origin: 0 50%; transform: scaleX(0);
   transition: transform .6s var(--ease) .35s, border-color .2s var(--ease);
 }
 .fit-wire-dot {
   width: 7px; height: 7px; border-radius: 50%;
-  border: 1.5px solid var(--line-2); background: var(--bg);
+  border: 1.5px solid var(--faint); background: var(--bg);
   opacity: 0; transition: opacity .2s var(--ease) .8s, border-color .2s var(--ease), background-color .2s var(--ease);
 }
 .fit-row.is-on .fit-wire-line { transform: scaleX(1); }

@@ -18,7 +18,7 @@ function CheckRow({ item, i, reduce, onPass }) {
       ref={ref}
       className={`fit-row${on ? " is-on" : ""}`}
       initial={reduce ? false : { opacity: 0, y: 18 }}
-      animate={on ? { opacity: 1, y: 0 } : undefined}
+      animate={on ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }}
       transition={{ type: "spring", stiffness: 260, damping: 30 }}
     >
       <span className="fit-idx" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
@@ -27,7 +27,7 @@ function CheckRow({ item, i, reduce, onPass }) {
         <motion.span
           className="fit-check-box"
           initial={reduce ? false : { scale: 0.6 }}
-          animate={on ? { scale: 1 } : undefined}
+          animate={{ scale: on ? 1 : 0.6 }}
           transition={{ type: "spring", stiffness: 520, damping: 18, delay: reduce ? 0 : 0.12 }}
         />
         <svg viewBox="0 0 24 24" width="24" height="24">
@@ -39,7 +39,7 @@ function CheckRow({ item, i, reduce, onPass }) {
             strokeLinecap="round"
             strokeLinejoin="round"
             initial={reduce ? false : { pathLength: 0 }}
-            animate={on ? { pathLength: 1 } : undefined}
+            animate={{ pathLength: on ? 1 : 0 }}
             transition={{ duration: 0.42, delay: reduce ? 0 : 0.26, ease: [0.65, 0, 0.35, 1] }}
           />
         </svg>

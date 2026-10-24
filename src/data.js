@@ -53,7 +53,7 @@ export const cases = [
     tag: "Founding engineer · 2024 to now",
     one: "Store owners were losing stock they couldn't explain, and nobody had time to watch CCTV. I built a tool that watches for them and sends a clip to the person who can act on it.",
     hero: { src: "img/innovatorsday-1.jpg", alt: "Team BillianceAI receiving first place at Innovators' Day 2025", cap: "First of 700+ teams from 50+ colleges at Innovators' Day 2025, presenting BillianceAI." },
-    gallery: [{ src: "shots/billiance-site.jpg", alt: "BillianceAI product site" }],
+    gallery: [{ src: "shots/billiance-site.jpg", alt: "billianceai.com home page" }],
     rows: [
       { k: "Friction", v: "A 15,000 sq ft store had an ₹89,970 stock gap and no way to tell where it went. Staff couldn't watch screens all day, and false alarms made them stop trusting alerts." },
       { k: "Tools tested", chips: ["Qwen2.5-VL-7B", "LLaVA-1.5-7B", "YOLOv8", "ByteTrack"], v: "Each one tested on the store's own footage, against the workflow it had to fit." },
@@ -67,7 +67,7 @@ export const cases = [
       { value: "11", label: "Podiums and awards" },
     ],
     links: [
-      { label: "Product site", href: "https://billianceai.lovable.app/" },
+      { label: "Product site", href: "https://billianceai.com" },
       { label: "Code", href: "https://github.com/adhavan18/billianceai-razorpay" },
     ],
   },
